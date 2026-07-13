@@ -1,0 +1,7 @@
+/agm
+/agm.exe
+*.test
+.DS_Store
+*.db
+*.db-*
+.mk
