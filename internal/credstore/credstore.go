@@ -19,7 +19,7 @@ const (
 	nativeTarget = "gemini:antigravity" // @napi-rs/keyring target on Linux/Windows
 )
 
-// WriteToken writes the Antigravity credential-store payload used by agy CLI and classic builds.
+// WriteToken writes the Antigravity credential-store payload used by the agy CLI.
 func WriteToken(token *db.Token) error {
 	if token == nil {
 		return fmt.Errorf("nil token")

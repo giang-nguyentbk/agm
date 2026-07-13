@@ -51,34 +51,21 @@ func SwitchFlow(opts SwitchOptions) error {
 		return nil
 	}
 	if err := StartForTarget(t); err != nil {
-		return fmt.Errorf("token injected but failed to start %s: %w", target.Label(t), err)
+		fmt.Fprintf(os.Stderr, "Warning: token injected but failed to start %s: %v\n", target.Label(t), err)
 	}
 	return nil
 }
 
-// KillForTarget terminates processes for ide or classic.
+// KillForTarget terminates processes for ide or agy.
 func KillForTarget(t target.Target) error {
 	switch t {
 	case target.IDE:
 		return killHints([]string{"Antigravity IDE", "AntigravityIDE"})
-	case target.Classic:
-		// Avoid killing IDE when switching classic only
-		if runtime.GOOS == "darwin" {
-			_ = exec.Command("pkill", "-f", "Antigravity.app").Run()
-			// Do not pkill "Antigravity IDE"
-			return nil
-		}
-		return killHints([]string{"Antigravity.exe", "Antigravity"})
 	case target.Agy:
 		return nil
 	default:
-		return KillAntigravity()
+		return killHints([]string{"Antigravity IDE", "AntigravityIDE"})
 	}
-}
-
-// KillAntigravity terminates broad Antigravity GUI processes.
-func KillAntigravity() error {
-	return killHints([]string{"Antigravity", "antigravity"})
 }
 
 // StartForTarget launches the right app for the target.
@@ -98,11 +85,6 @@ func StartForTarget(t target.Target) error {
 	return nil
 }
 
-// StartAntigravity launches classic/default desktop if found.
-func StartAntigravity() error {
-	return StartForTarget(target.Classic)
-}
-
 // FindExecutable returns a path for the given target.
 func FindExecutable(t target.Target) string {
 	switch t {
@@ -113,11 +95,6 @@ func FindExecutable(t target.Target) string {
 			return p
 		}
 		return FindRunningExecutable(target.IDE)
-	case target.Classic:
-		if p := paths.FindExecutableForProduct("classic"); p != "" {
-			return p
-		}
-		return FindRunningExecutable(target.Classic)
 	default:
 		return paths.FindAntigravityExecutable()
 	}
@@ -173,7 +150,7 @@ func killHints(hints []string) error {
 
 // FindRunningExecutable returns path of a running process matching target.
 func FindRunningExecutable(t ...target.Target) string {
-	want := target.Classic
+	want := target.IDE
 	if len(t) > 0 {
 		want = t[0]
 	}
@@ -193,9 +170,6 @@ func FindRunningExecutable(t ...target.Target) string {
 				if !strings.Contains(line, "Antigravity IDE") {
 					continue
 				}
-			}
-			if want == target.Classic && strings.Contains(lower, "ide") {
-				continue
 			}
 			fields := strings.Fields(strings.TrimSpace(line))
 			if len(fields) > 0 && fileExists(fields[0]) {

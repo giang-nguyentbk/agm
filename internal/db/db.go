@@ -465,7 +465,7 @@ func ImportRawAccounts(inputPath string) (int, error) {
 	return imported, nil
 }
 
-// InjectTokenIntoStateDB writes unified OAuth into state.vscdb for product "ide" or "classic".
+// InjectTokenIntoStateDB writes unified OAuth into state.vscdb for product "ide".
 func InjectTokenIntoStateDB(account *Account, product string) error {
 	if account.Token == nil {
 		return fmt.Errorf("no decrypted token for %s", account.Email)

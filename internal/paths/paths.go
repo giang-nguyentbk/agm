@@ -161,24 +161,22 @@ func PrimaryManagerDir() string {
 }
 
 // productFolderNames returns Application Support / Roaming folder names for a product.
-// product is "ide" or "classic".
+// product is "ide".
 func productFolderNames(product string) []string {
 	switch product {
 	case "ide":
 		return []string{"Antigravity IDE", "AntigravityIDE"}
-	case "classic":
-		return []string{"Antigravity"}
 	default:
-		return []string{"Antigravity", "Antigravity IDE"}
+		return []string{"Antigravity IDE"}
 	}
 }
 
-// FindStateDB locates state.vscdb for ide or classic (empty product = either).
+// FindStateDB locates state.vscdb for ide (empty product = either/IDE/Code).
 func FindStateDB(product string) string {
 	home, _ := os.UserHomeDir()
 	names := productFolderNames(product)
 	if product == "" {
-		names = []string{"Antigravity", "Antigravity IDE", "Code"}
+		names = []string{"Antigravity IDE", "Code"}
 	}
 	var bases []string
 	switch runtime.GOOS {
@@ -210,15 +208,12 @@ func FindStateDB(product string) string {
 	return ""
 }
 
-// FindIDEStateDB locates Antigravity IDE state.vscdb (falls back to classic).
+// FindIDEStateDB locates Antigravity IDE state.vscdb.
 func FindIDEStateDB() string {
-	if p := FindStateDB("ide"); p != "" {
-		return p
-	}
-	return FindStateDB("classic")
+	return FindStateDB("ide")
 }
 
-// FindExecutableForProduct returns a GUI executable for ide or classic.
+// FindExecutableForProduct returns a GUI executable for ide.
 func FindExecutableForProduct(product string) string {
 	home, _ := os.UserHomeDir()
 	var candidates []string
@@ -231,11 +226,6 @@ func FindExecutableForProduct(product string) string {
 				filepath.Join(local, "Programs", "Antigravity IDE", "Antigravity IDE.exe"),
 				filepath.Join(prog, "Antigravity IDE", "Antigravity IDE.exe"),
 			}
-		} else {
-			candidates = []string{
-				filepath.Join(local, "Programs", "Antigravity", "Antigravity.exe"),
-				filepath.Join(prog, "Antigravity", "Antigravity.exe"),
-			}
 		}
 	case "darwin":
 		if product == "ide" {
@@ -244,19 +234,10 @@ func FindExecutableForProduct(product string) string {
 				"/Applications/Antigravity IDE.app/Contents/MacOS/Antigravity",
 				filepath.Join(home, "Applications", "Antigravity IDE.app", "Contents", "MacOS", "Electron"),
 			}
-		} else {
-			candidates = []string{
-				"/Applications/Antigravity.app/Contents/MacOS/Electron",
-				"/Applications/Antigravity.app/Contents/MacOS/Antigravity",
-				filepath.Join(home, "Applications", "Antigravity.app", "Contents", "MacOS", "Electron"),
-				filepath.Join(home, ".antigravity", "antigravity", "bin", "antigravity"),
-			}
 		}
 	default:
 		if product == "ide" {
 			candidates = []string{"/usr/bin/antigravity-ide", "/usr/local/bin/antigravity-ide"}
-		} else {
-			candidates = []string{"/usr/bin/antigravity", "/usr/local/bin/antigravity"}
 		}
 	}
 	for _, p := range candidates {
@@ -280,23 +261,20 @@ func FindAntigravityExecutable() string {
 		local := os.Getenv("LOCALAPPDATA")
 		prog := os.Getenv("ProgramFiles")
 		candidates = []string{
-			filepath.Join(local, "Programs", "Antigravity", "Antigravity.exe"),
-			filepath.Join(prog, "Antigravity", "Antigravity.exe"),
+			filepath.Join(local, "Programs", "Antigravity IDE", "Antigravity IDE.exe"),
+			filepath.Join(prog, "Antigravity IDE", "Antigravity IDE.exe"),
 		}
 	case "darwin":
 		candidates = []string{
-			"/Applications/Antigravity.app/Contents/MacOS/Electron",
-			"/Applications/Antigravity.app/Contents/MacOS/Antigravity",
 			"/Applications/Antigravity IDE.app/Contents/MacOS/Electron",
 			"/Applications/Antigravity IDE.app/Contents/MacOS/Antigravity",
-			filepath.Join(home, "Applications", "Antigravity.app", "Contents", "MacOS", "Electron"),
-			filepath.Join(home, ".antigravity", "antigravity", "bin", "antigravity"),
+			filepath.Join(home, "Applications", "Antigravity IDE.app", "Contents", "MacOS", "Electron"),
 		}
 	default:
 		candidates = []string{
-			"/usr/bin/antigravity",
-			"/usr/local/bin/antigravity",
-			filepath.Join(home, ".local", "bin", "antigravity"),
+			"/usr/bin/antigravity-ide",
+			"/usr/local/bin/antigravity-ide",
+			filepath.Join(home, ".local", "bin", "antigravity-ide"),
 		}
 	}
 

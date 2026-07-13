@@ -91,15 +91,14 @@ Exports keep fields **encrypted**. Restoring on another machine needs the same m
 ## Switching accounts
 
 ```bash
-agm switch <email|alias|partial> [--target agy|ide|classic|all]
+agm switch <email|alias|partial> [--target agy|ide|all]
 ```
 
 | Target | Product | Behavior |
 |--------|---------|----------|
 | `agy` (`cli`) | Antigravity CLI | Write OS credential store only (no GUI process restart) |
 | `ide` | Antigravity IDE | Inject OAuth into `state.vscdb`, restart IDE if found |
-| `classic` (`desktop`, `gui`) | Antigravity desktop | Credential store + optional SQLite; restart desktop if found |
-| `all` (default) | All surfaces | Applies `agy` → `ide` → `classic` |
+| `all` (default) | All surfaces | Applies `agy` → `ide` |
 
 ```bash
 agm switch work --target agy
@@ -123,7 +122,7 @@ agm unalias work
 ## Everyday usage
 
 ```bash
-agm list                       # accounts + quota summary (tags: cli / ide / classic)
+agm list                       # accounts + quota summary (tags: cli / ide)
 agm info you@gmail.com         # per-model quotas
 agm status                     # active account snapshot
 agm refresh you@gmail.com
@@ -163,11 +162,10 @@ Created automatically on first use.
      cloud_accounts.db
            │
            │  agm switch --target …
-    ┌──────┼──────────┐
-    ▼      ▼          ▼
-   agy    IDE      classic
-  keychain  vscdb   keychain
-                    (+ sqlite)
+     ┌─────┴─────┐
+     ▼           ▼
+    agy         IDE
+  keychain     vscdb
 ```
 
 - **Credential store** — macOS Keychain (`gemini` / `antigravity`), Linux `secret-tool`, Windows Credential Manager
@@ -255,7 +253,7 @@ go build -o agm .
 │   ├── paths/
 │   ├── process/
 │   ├── proto/
-│   ├── target/            # agy | ide | classic | all
+│   ├── target/            # agy | ide | all
 │   └── aliases/
 └── README.md
 ```
