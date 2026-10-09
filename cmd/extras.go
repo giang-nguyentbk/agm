@@ -82,10 +82,15 @@ var aliasCmd = &cobra.Command{
 		if len(args) == 1 {
 			return fmt.Errorf("usage: agm alias <name> <email>")
 		}
-		if err := aliases.Set(args[0], args[1]); err != nil {
+		name := strings.TrimSpace(args[0])
+		email := strings.TrimSpace(args[1])
+		if strings.Contains(name, "@") && !strings.Contains(email, "@") {
+			name, email = email, name
+		}
+		if err := aliases.Set(name, email); err != nil {
 			return err
 		}
-		fmt.Printf("Alias '%s' → %s\n", args[0], args[1])
+		fmt.Printf("Alias '%s' → %s\n", name, email)
 		return nil
 	},
 }

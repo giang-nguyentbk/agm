@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/shyim/agm/internal/paths"
 )
@@ -39,8 +40,20 @@ func Save(m map[string]string) error {
 }
 
 // Set sets name -> email.
+// It auto-detects inverted arguments (e.g. 'email alias' instead of 'alias email')
+// and removes any existing reverse mapping to prevent lookup poisoning.
 func Set(name, email string) error {
+	name = strings.TrimSpace(name)
+	email = strings.TrimSpace(email)
+
+	// Auto-detect inverted arguments: if name contains '@' and email does not, swap them
+	if strings.Contains(name, "@") && !strings.Contains(email, "@") {
+		name, email = email, name
+	}
+
 	m := Load()
+	// Clean up any stale reverse mapping that would poison lookups
+	delete(m, email)
 	m[name] = email
 	return Save(m)
 }
@@ -57,8 +70,15 @@ func Remove(name string) bool {
 }
 
 // Resolve maps alias to email, or returns pattern unchanged.
+// It guards against corrupted reverse mappings (e.g. an email mapped to a nickname).
 func Resolve(pattern string) string {
-	if email, ok := Load()[pattern]; ok {
+	m := Load()
+	if email, ok := m[pattern]; ok {
+		// Guard against corrupted reverse mappings: if pattern is already an email
+		// and the mapped value is not an email, do not corrupt the original email.
+		if strings.Contains(pattern, "@") && !strings.Contains(email, "@") {
+			return pattern
+		}
 		return email
 	}
 	return pattern

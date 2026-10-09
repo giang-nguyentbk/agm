@@ -295,6 +295,14 @@ func fileExists(p string) bool {
 }
 
 // MatchEmail reports whether haystack contains needle (case-insensitive).
+// It also matches dot-insensitive variations (e.g. 'johnsmith' matching 'john.smith@gmail.com').
 func MatchEmail(haystack, needle string) bool {
-	return strings.Contains(strings.ToLower(haystack), strings.ToLower(needle))
+	h := strings.ToLower(haystack)
+	n := strings.ToLower(needle)
+	if strings.Contains(h, n) {
+		return true
+	}
+	hNoDots := strings.ReplaceAll(h, ".", "")
+	nNoDots := strings.ReplaceAll(n, ".", "")
+	return strings.Contains(hNoDots, nNoDots)
 }
